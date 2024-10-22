@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Maritial {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOW
+}
+
+enum Position {
+  COLLABORATOR
+  FINANCE_CONSULTANT
+  AREA_SALES_DIRECTOR
+  REGIONAL_DIRIECTOR
+  BRANCH_DIRECTOR
+  MERCHANT
+}
+
+enum Department {
+  BOARD_OF_DIRECTORS
+  OPERATIONS
+  MARKETING
+  SALES
+  IT
+}
+
+enum Team {
+  HUMAN_RESOURCES
+  ACCOUNTANT
+  LEGAL
+  FINTECH
+  INSURTECH
+  PARTNERSHIP
+}
+
+enum ContractType {
+  EMPLOYMENT_CONTRACT
+  SERVICE_CONTRACT
+}
+
+enum WorkStatus {
+  WORKING
+  OFF
+}
+
+enum DocumentStatus {
+  ADDITIONAL
+  NO_ADDITIONAL
+}
+
+enum PartnerType {
+  MERCHANT
+  DISTRIBUTOR
+}
+
+enum RepresentativeDocType {
+  CITIZEN_IDENTIFIER
+  PASSPORT
+}
+
+model User {
+  id                String         @id @default(uuid())
+  code              String         @unique
+  fullname          String
+  role              Role           @default(USER)
+  email             String
+  password          String
+  phone             String
+  dateOfBirth       DateTime
+  placeOfBirth      String
+  gender            Gender
+  maritialStatus    Maritial       @default(SINGLE)
+  citizenIdentifier String
+  dateOfIssued      DateTime
+  placeOfIssued     String
+  nation            String
+  currentAddress    String
+  currentWard       String
+  curentDistrict    String
+  currentprovince   String
+  bankAccountName   String
+  bankAccountNumber String
+  bankName          String
+  position          Position       @default(COLLABORATOR)
+  department        Department     @default(SALES)
+  team              Team           @default(FINTECH)
+  workStaus         WorkStatus     @default(WORKING)
+  documentStatus    DocumentStatus @default(NO_ADDITIONAL)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  managerId   String?
+  manager     User?         @relation("ManagerPublisher", fields: [managerId], references: [id])
+  manageUsers User[]        @relation("ManagerPublisher")
+  document    UserDocument?
+}
+
+model UserDocument {
+  id                     String       @id @default(uuid())
+  citizenIdentifierFront String
+  citizenIdentifierBack  String
+  portrait               String
+  contracType            ContractType @default(SERVICE_CONTRACT)
+  contract               String
+  contractStartAt        DateTime
+  contractEndAt          DateTime
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Partner {
+  id                            String                @id
+  code                          String                @unique
+  type                          PartnerType
+  name                          String
+  role                          Role                  @default(USER)
+  password                      String
+  dateOfEstablishment           DateTime
+  taxCode                       String
+  bankAccountName               String
+  bankAccountNumber             String
+  bankName                      String
+  companyAddress                String
+  companyWard                   String
+  companyDistrict               String
+  companyprovince               String
+  phone                         String
+  email                         String
+  website                       String
+  representative                String
+  representativeGender          Gender
+  representativeDoB             DateTime
+  representativeNation          String
+  representativeNational        String
+  representativeDocType         RepresentativeDocType @default(CITIZEN_IDENTIFIER)
+  representativeDocNumber       String
+  representativeDocDoI          DateTime
+  representativeDocPoI          String
+  representativeCurrentAddress  String
+  representativeCurrentWard     String
+  representativeCurentDistrict  String
+  representativeCurrentprovince String
+  createdAt                     DateTime              @default(now())
+  uodatedAt                     DateTime              @updatedAt
+
+  document PartnerDocument?
+}
+
+model PartnerDocument {
+  id              String       @id @default(uuid())
+  businessLicense String
+  contracType     ContractType @default(SERVICE_CONTRACT)
+  contract        String
+  contractStartAt DateTime
+  contractEndAt   DateTime
+
+  partnerId String  @unique
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+}
